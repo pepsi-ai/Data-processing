@@ -7,12 +7,11 @@ from mmhe_v1.canonicalize.text import canonicalize_text
 from mmhe_v1.config import load_config
 from mmhe_v1.crypto.ckks import CKKSAdapter, detect_tenseal_unavailable_reason
 from mmhe_v1.crypto.similarity import cosine_similarity
+from mmhe_v1.data.modality_records import build_text_modality_record
 from mmhe_v1.embedding.openclip_encoder import encode_text, normalize_embedding
 from mmhe_v1.experiments.consistency import verify_ranked_result_commitment, verify_vector_commitment
 from mmhe_v1.experiments.metrics import mean_absolute_error, rank_consistency, recall_at_k
 from mmhe_v1.hashing.homomorphic import LtHash
-from mmhe_v1.hashing.semantic import semantic_hash_128
-from mmhe_v1.hashing.strict import canonical_text_sha256
 from mmhe_v1.reporting import write_result_artifacts
 from mmhe_v1.types import ExperimentResult
 
@@ -99,6 +98,8 @@ def run_experiment(config_path: str | Path, output_dir: str | Path | None = None
     resolved_output_dir = resolved_output_dir.resolve()
     reports_dir = resolved_output_dir / "reports"
     reports_dir.mkdir(parents=True, exist_ok=True)
+    homomorphic_hasher = LtHash(seed=config.seed)
+    commitment_scale = 1_000
 
     sample_pairs = [
         ("a1", "A red car", "a   red car"),
@@ -113,10 +114,26 @@ def run_experiment(config_path: str | Path, output_dir: str | Path | None = None
         sample_id: _build_text_embedding(doc_text, config=config)
         for sample_id, _, doc_text in sample_pairs
     }
+    query_records = {
+        sample_id: build_text_modality_record(
+            query_text,
+            config,
+            lthash=homomorphic_hasher,
+            embedding_scale=commitment_scale,
+        )
+        for sample_id, query_text, _ in sample_pairs
+    }
+    document_records = {
+        sample_id: build_text_modality_record(
+            doc_text,
+            config,
+            lthash=homomorphic_hasher,
+            embedding_scale=commitment_scale,
+        )
+        for sample_id, _, doc_text in sample_pairs
+    }
 
     adapter = _build_ckks_adapter(config)
-    homomorphic_hasher = LtHash(seed=config.seed)
-    commitment_scale = 1_000
     encrypted_document_vectors = {
         sample_id: adapter.encrypt(vector) for sample_id, vector in document_vectors.items()
     }
@@ -180,7 +197,7 @@ def run_experiment(config_path: str | Path, output_dir: str | Path | None = None
         "homomorphic_result_consistency": round(sum(result_commitments) / len(result_commitments), 6),
     }
 
-    first_sample_id, first_query_text, _ = sample_pairs[0]
+    first_sample_id, _, _ = sample_pairs[0]
     runtime_metadata = {
         "seed": config.seed,
         "model_name": config.model_name,
@@ -193,10 +210,17 @@ def run_experiment(config_path: str | Path, output_dir: str | Path | None = None
         "ckks_backend_unavailable_reason": adapter.unavailable_reason,
         "config_path": str(Path(config_path).resolve()),
         "query_example_id": first_sample_id,
-        "query_example_canonical_sha256": canonical_text_sha256(first_query_text),
-        "query_example_semantic_hash": semantic_hash_128(
-            query_vectors[first_sample_id], seed=config.hash.projection_seed
-        ),
+        "query_example_canonical_text": query_records[first_sample_id].canonical_text,
+        "query_example_canonical_sha256": query_records[first_sample_id].canonical_sha256,
+        "query_example_semantic_hash": query_records[first_sample_id].semantic_hash_128,
+        "query_example_text_payload_hash": query_records[first_sample_id].homomorphic_payload_digest,
+        "query_example_text_embedding_hash": query_records[first_sample_id].homomorphic_embedding_digest,
+        "document_example_id": first_sample_id,
+        "document_example_canonical_text": document_records[first_sample_id].canonical_text,
+        "document_example_canonical_sha256": document_records[first_sample_id].canonical_sha256,
+        "document_example_semantic_hash": document_records[first_sample_id].semantic_hash_128,
+        "document_example_text_payload_hash": document_records[first_sample_id].homomorphic_payload_digest,
+        "document_example_text_embedding_hash": document_records[first_sample_id].homomorphic_embedding_digest,
         "homomorphic_hash_backend": "lthash_style_additive",
         "homomorphic_hash_scale": commitment_scale,
         "homomorphic_hash_width": homomorphic_hasher.output_size,
