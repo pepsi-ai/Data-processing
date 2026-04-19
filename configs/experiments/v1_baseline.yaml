@@ -1,0 +1,31 @@
+seed: 7
+embedding_backend: open_clip
+model_name: ViT-B-32
+pretrained_tag: laion2b_s34b_b79k
+embedding_dim: 512
+
+paths:
+  repo_root: ../..
+  dataset_root: ../../数据集
+  artifacts_root: ../../artifacts
+  raw_manifest: ../../数据集/dataset_manifests/raw_download_manifest.json
+  v1_input_manifest: ../../数据集/dataset_manifests/v1_input_manifest.jsonl
+
+text_normalization:
+  unicode_form: NFC
+  lowercase: true
+  collapse_whitespace: true
+
+image:
+  width: 224
+  height: 224
+  resample: bicubic
+
+hash:
+  semantic_bits: 128
+  projection_seed: 7
+
+ckks:
+  enabled: true
+  poly_modulus_degree: 8192
+  scaling_mod_size: 40

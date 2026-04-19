@@ -1,0 +1,40 @@
+{
+  "metric_snapshot": {
+    "homomorphic_input_consistency": 1.0,
+    "homomorphic_result_consistency": 1.0,
+    "mae": 0.0,
+    "rank_consistency": 1.0,
+    "recall_at_10": 1.0
+  },
+  "output_dir": "E:\\\u6570\u636e\u5904\u74062\\artifacts\\tmp_homomorphic_check",
+  "reports_dir": "E:\\\u6570\u636e\u5904\u74062\\artifacts\\tmp_homomorphic_check\\reports",
+  "result_json_path": "E:\\\u6570\u636e\u5904\u74062\\artifacts\\tmp_homomorphic_check\\reports\\result.json",
+  "runtime_metadata": {
+    "ckks_backend": "test_double",
+    "ckks_backend_status": "unavailable: ModuleNotFoundError: No module named 'openfhe.openfhe'",
+    "ckks_backend_unavailable_reason": "ModuleNotFoundError: No module named 'openfhe.openfhe'",
+    "config_path": "E:\\\u6570\u636e\u5904\u74062\\configs\\experiments\\v1_baseline.yaml",
+    "embedding_dim": 512,
+    "hash.semantic_bits": 128,
+    "homomorphic_hash_backend": "lthash_style_additive",
+    "homomorphic_hash_scale": 1000,
+    "homomorphic_hash_width": 8,
+    "metric_snapshot": {
+      "homomorphic_input_consistency": 1.0,
+      "homomorphic_result_consistency": 1.0,
+      "mae": 0.0,
+      "rank_consistency": 1.0,
+      "recall_at_10": 1.0
+    },
+    "model_name": "ViT-B-32",
+    "query_example_canonical_sha256": "4ff7ca0b5aba7ae1185e2668c4f0ded0d6be29bb74986da87476106176802526",
+    "query_example_ckks_homomorphic_hash": "13f47006524a278104975b89e8eb38761bfd0f2e7dbff5811aca38b121b77fc21bb9d3651b5aac6c1ea7a1e74800a89715908cdfb9c0a839162644ac4499e7ea",
+    "query_example_ckks_result_hash": "1f0efbcca84258541566a529873b0b1d1d272e3360c9ab8a08fbc7f6374b5fb711fcced3c59ee69b0aeb8b1880047f0913ba95287a2e9d70168f4be1d3605866",
+    "query_example_id": "a1",
+    "query_example_plain_homomorphic_hash": "13f47006524a278104975b89e8eb38761bfd0f2e7dbff5811aca38b121b77fc21bb9d3651b5aac6c1ea7a1e74800a89715908cdfb9c0a839162644ac4499e7ea",
+    "query_example_plain_result_hash": "1f0efbcca84258541566a529873b0b1d1d272e3360c9ab8a08fbc7f6374b5fb711fcced3c59ee69b0aeb8b1880047f0913ba95287a2e9d70168f4be1d3605866",
+    "query_example_semantic_hash": "00100001110011100001011001100100111000001111111101100010001100001110100110000010000010101110101001110001101110001011111011100001",
+    "seed": 7
+  },
+  "summary_path": "E:\\\u6570\u636e\u5904\u74062\\artifacts\\tmp_homomorphic_check\\reports\\summary.md"
+}

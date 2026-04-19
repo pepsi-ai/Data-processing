@@ -1,0 +1,42 @@
+{
+  "metric_snapshot": {
+    "homomorphic_input_consistency": 1.0,
+    "homomorphic_result_consistency": 1.0,
+    "mae": 1e-06,
+    "rank_consistency": 1.0,
+    "recall_at_10": 1.0
+  },
+  "output_dir": "E:\\\u6570\u636e\u5904\u74062\\artifacts\\baseline_real_stack",
+  "reports_dir": "E:\\\u6570\u636e\u5904\u74062\\artifacts\\baseline_real_stack\\reports",
+  "result_json_path": "E:\\\u6570\u636e\u5904\u74062\\artifacts\\baseline_real_stack\\reports\\result.json",
+  "runtime_metadata": {
+    "ckks_backend": "tenseal",
+    "ckks_backend_status": "available",
+    "ckks_backend_unavailable_reason": null,
+    "config_path": "E:\\\u6570\u636e\u5904\u74062\\configs\\experiments\\v1_baseline.yaml",
+    "embedding_backend": "open_clip",
+    "embedding_dim": 512,
+    "hash.semantic_bits": 128,
+    "homomorphic_hash_backend": "lthash_style_additive",
+    "homomorphic_hash_scale": 1000,
+    "homomorphic_hash_width": 8,
+    "metric_snapshot": {
+      "homomorphic_input_consistency": 1.0,
+      "homomorphic_result_consistency": 1.0,
+      "mae": 1e-06,
+      "rank_consistency": 1.0,
+      "recall_at_10": 1.0
+    },
+    "model_name": "ViT-B-32",
+    "pretrained_tag": "laion2b_s34b_b79k",
+    "query_example_canonical_sha256": "4ff7ca0b5aba7ae1185e2668c4f0ded0d6be29bb74986da87476106176802526",
+    "query_example_ckks_homomorphic_hash": "12622436dde87d890001505492f012fe08a7801347fa5f8608b8097629e2ddf8121e31c1f21876f006fa645d34c53533136eb60449fd4ae31cb3d8e6c65fd1c9",
+    "query_example_ckks_result_hash": "13cac14ec43036cc1d1023c9ac6d5a5d025a8f59ccaa38490b91698045e6b5431b7af8fe54376a2a1a004be75eff70421202b1304fae0e8417b74387d8b80091",
+    "query_example_id": "a1",
+    "query_example_plain_homomorphic_hash": "12622436dde87d890001505492f012fe08a7801347fa5f8608b8097629e2ddf8121e31c1f21876f006fa645d34c53533136eb60449fd4ae31cb3d8e6c65fd1c9",
+    "query_example_plain_result_hash": "13cac14ec43036cc1d1023c9ac6d5a5d025a8f59ccaa38490b91698045e6b5431b7af8fe54376a2a1a004be75eff70421202b1304fae0e8417b74387d8b80091",
+    "query_example_semantic_hash": "11000001111100101110111000110110001000001000001110001000111110010101000011000000101100100110010010110111101100100010000010011000",
+    "seed": 7
+  },
+  "summary_path": "E:\\\u6570\u636e\u5904\u74062\\artifacts\\baseline_real_stack\\reports\\summary.md"
+}
