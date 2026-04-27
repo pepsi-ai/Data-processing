@@ -1,15 +1,15 @@
 from __future__ import annotations
 
 import importlib
-import math
 from dataclasses import dataclass
 from functools import lru_cache
 from pathlib import Path
-from typing import Any, Iterable
+from typing import Any
 
 from PIL import Image
 
 from mmhe_v1.canonicalize.image import canonicalize_image
+from mmhe_v1.embedding.utils import coerce_feature_row, normalize_embedding
 from mmhe_v1.types import CanonicalImage
 
 
@@ -30,39 +30,11 @@ class OpenClipBackend:
     device: str
 
 
-def normalize_embedding(values: Iterable[float]) -> list[float]:
-    vector = list(values)
-    if not vector:
-        raise ValueError("embedding vector must not be empty")
-    if any(isinstance(value, bool) or not isinstance(value, (int, float)) for value in vector):
-        raise TypeError("embedding values must be numeric")
-
-    norm = math.sqrt(sum(float(value) * float(value) for value in vector))
-    if norm == 0.0:
-        raise ValueError("cannot normalize zero vector")
-
-    return [float(value) / norm for value in vector]
-
-
 def _load_torch():
     try:
         return importlib.import_module("torch")
     except ModuleNotFoundError as error:
         raise RuntimeError("torch dependency is required for OpenCLIP encoding") from error
-
-
-def _coerce_feature_row(values: Any) -> list[float]:
-    if hasattr(values, "detach"):
-        values = values.detach()
-    if hasattr(values, "cpu"):
-        values = values.cpu()
-    if hasattr(values, "squeeze"):
-        values = values.squeeze(0)
-    if hasattr(values, "tolist"):
-        values = values.tolist()
-    if not isinstance(values, list):
-        raise TypeError("encoder output must be convertible to a numeric list")
-    return normalize_embedding(values)
 
 
 def _infer_embedding_dim(model: Any) -> int:
@@ -132,7 +104,7 @@ def encode_text(
 
     with torch.inference_mode():
         features = resolved_backend.model.encode_text(tokens)
-    return _coerce_feature_row(features)
+    return coerce_feature_row(features)
 
 
 def _canonical_image_to_pil(image: CanonicalImage) -> Image.Image:
@@ -170,4 +142,4 @@ def encode_image(
 
     with torch.inference_mode():
         features = resolved_backend.model.encode_image(image_tensor)
-    return _coerce_feature_row(features)
+    return coerce_feature_row(features)

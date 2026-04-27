@@ -56,6 +56,27 @@ class CkksConfig:
 
 
 @dataclass(frozen=True, slots=True)
+class VideoConfig:
+    backend: str = "videomae_action"
+    model_name: str = "nateraw/videomae-base-finetuned-ucf101"
+    clip_len: int = 16
+    frame_sample_rate: int = 4
+    top_k: int = 5
+
+    def __post_init__(self) -> None:
+        if self.backend not in {"videomae_action"}:
+            raise ValueError("video.backend must be one of: videomae_action")
+        if not self.model_name.strip():
+            raise ValueError("video.model_name must not be empty")
+        if self.clip_len <= 0:
+            raise ValueError("video.clip_len must be > 0")
+        if self.frame_sample_rate <= 0:
+            raise ValueError("video.frame_sample_rate must be > 0")
+        if self.top_k <= 0:
+            raise ValueError("video.top_k must be > 0")
+
+
+@dataclass(frozen=True, slots=True)
 class AppConfig:
     seed: int
     embedding_backend: str
@@ -65,6 +86,7 @@ class AppConfig:
     paths: PathsConfig
     hash: HashConfig = HashConfig()
     ckks: CkksConfig = CkksConfig()
+    video: VideoConfig = VideoConfig()
     text_unicode_form: str = "NFC"
     text_lowercase: bool = True
     text_collapse_whitespace: bool = True
@@ -74,8 +96,10 @@ class AppConfig:
     def __post_init__(self) -> None:
         if self.seed < 0:
             raise ValueError("seed must be >= 0")
-        if self.embedding_backend not in {"open_clip", "deterministic_stub"}:
-            raise ValueError("embedding_backend must be one of: open_clip, deterministic_stub")
+        if self.embedding_backend not in {"chinese_clip", "open_clip", "deterministic_stub"}:
+            raise ValueError(
+                "embedding_backend must be one of: chinese_clip, open_clip, deterministic_stub"
+            )
         if not self.model_name.strip():
             raise ValueError("model_name must not be empty")
         if not self.pretrained_tag.strip():
@@ -104,6 +128,16 @@ class CanonicalImage:
     width: int
     height: int
     pixel_bytes: bytes
+
+
+@dataclass(frozen=True, slots=True)
+class CanonicalVideo:
+    source_path: Path
+    frame_count: int
+    fps: float
+    duration_seconds: float
+    sampled_indices: tuple[int, ...]
+    frames: tuple[CanonicalImage, ...]
 
 
 @dataclass(frozen=True, slots=True)

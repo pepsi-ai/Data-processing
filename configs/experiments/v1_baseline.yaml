@@ -1,7 +1,7 @@
 seed: 7
-embedding_backend: open_clip
-model_name: ViT-B-32
-pretrained_tag: laion2b_s34b_b79k
+embedding_backend: chinese_clip
+model_name: OFA-Sys/chinese-clip-vit-base-patch16
+pretrained_tag: default
 embedding_dim: 512
 
 paths:
@@ -29,3 +29,10 @@ ckks:
   enabled: true
   poly_modulus_degree: 8192
   scaling_mod_size: 40
+
+video:
+  backend: videomae_action
+  model_name: nateraw/videomae-base-finetuned-ucf101
+  clip_len: 16
+  frame_sample_rate: 4
+  top_k: 5

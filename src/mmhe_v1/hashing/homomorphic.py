@@ -7,7 +7,8 @@ from typing import Iterable, Sequence
 
 from mmhe_v1.canonicalize.image import canonicalize_image
 from mmhe_v1.canonicalize.text import canonicalize_text
-from mmhe_v1.types import CanonicalImage, CanonicalText
+from mmhe_v1.canonicalize.video import canonical_video_payload
+from mmhe_v1.types import CanonicalImage, CanonicalText, CanonicalVideo
 
 
 HomomorphicDigest = tuple[int, ...]
@@ -237,6 +238,22 @@ def hash_canonical_image(
     return hash_payload_bytes(
         _canonical_image_payload(canonical),
         namespace="image",
+        lthash=lthash,
+        chunk_size=chunk_size,
+    )
+
+
+def hash_canonical_video(
+    value: CanonicalVideo,
+    *,
+    lthash: LtHash | None = None,
+    chunk_size: int = 8192,
+) -> HomomorphicDigest:
+    if not isinstance(value, CanonicalVideo):
+        raise TypeError("video must be a CanonicalVideo")
+    return hash_payload_bytes(
+        canonical_video_payload(value),
+        namespace="video",
         lthash=lthash,
         chunk_size=chunk_size,
     )

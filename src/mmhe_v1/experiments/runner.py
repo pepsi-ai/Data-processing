@@ -8,7 +8,9 @@ from mmhe_v1.config import load_config
 from mmhe_v1.crypto.ckks import CKKSAdapter, detect_tenseal_unavailable_reason
 from mmhe_v1.crypto.similarity import cosine_similarity
 from mmhe_v1.data.modality_records import build_text_modality_record
-from mmhe_v1.embedding.openclip_encoder import encode_text, normalize_embedding
+from mmhe_v1.embedding.chinese_clip_encoder import encode_text as encode_chinese_clip_text
+from mmhe_v1.embedding.openclip_encoder import encode_text as encode_openclip_text
+from mmhe_v1.embedding.utils import normalize_embedding
 from mmhe_v1.experiments.consistency import verify_ranked_result_commitment, verify_vector_commitment
 from mmhe_v1.experiments.metrics import mean_absolute_error, rank_consistency, recall_at_k
 from mmhe_v1.hashing.homomorphic import LtHash
@@ -44,12 +46,22 @@ def _build_text_embedding(text: str, *, config) -> list[float]:
     if config.embedding_backend == "deterministic_stub":
         return _deterministic_vector(canonical, seed=config.seed, embedding_dim=config.embedding_dim)
 
-    vector = encode_text(
-        canonical,
-        model_name=config.model_name,
-        pretrained_tag=config.pretrained_tag,
-        device="cpu",
-    )
+    if config.embedding_backend == "chinese_clip":
+        vector = encode_chinese_clip_text(
+            canonical,
+            model_name=config.model_name,
+            pretrained_tag=config.pretrained_tag,
+            device="cpu",
+        )
+    elif config.embedding_backend == "open_clip":
+        vector = encode_openclip_text(
+            canonical,
+            model_name=config.model_name,
+            pretrained_tag=config.pretrained_tag,
+            device="cpu",
+        )
+    else:
+        raise ValueError(f"unsupported embedding backend: {config.embedding_backend}")
     if len(vector) != config.embedding_dim:
         raise ValueError(
             f"embedding dimension mismatch: expected {config.embedding_dim}, got {len(vector)}"

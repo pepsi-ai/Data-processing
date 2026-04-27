@@ -5,7 +5,7 @@ from typing import Any
 
 import yaml
 
-from .types import AppConfig, CkksConfig, HashConfig, PathsConfig
+from .types import AppConfig, CkksConfig, HashConfig, PathsConfig, VideoConfig
 
 _TOP_LEVEL_KEYS = {
     "seed",
@@ -18,6 +18,7 @@ _TOP_LEVEL_KEYS = {
     "image",
     "hash",
     "ckks",
+    "video",
 }
 _PATH_KEYS = {
     "repo_root",
@@ -30,6 +31,7 @@ _TEXT_KEYS = {"unicode_form", "lowercase", "collapse_whitespace"}
 _IMAGE_KEYS = {"width", "height", "resample"}
 _HASH_KEYS = {"semantic_bits", "projection_seed"}
 _CKKS_KEYS = {"enabled", "poly_modulus_degree", "scaling_mod_size"}
+_VIDEO_KEYS = {"backend", "model_name", "clip_len", "frame_sample_rate", "top_k"}
 
 
 class ConfigValidationError(ValueError):
@@ -109,17 +111,22 @@ def load_config(path: Path) -> AppConfig:
 
     ckks_raw = _require_mapping(raw.get("ckks", {}), section="ckks")
     _reject_unknown_keys(ckks_raw, allowed=_CKKS_KEYS, section="ckks")
+    video_raw = _require_mapping(raw.get("video", {}), section="video")
+    _reject_unknown_keys(video_raw, allowed=_VIDEO_KEYS, section="video")
+
+    embedding_backend = _require_str(
+        raw.get("embedding_backend", "chinese_clip"),
+        field_name="embedding_backend",
+    )
+    default_pretrained_tag = "default" if embedding_backend == "chinese_clip" else "laion2b_s34b_b79k"
 
     try:
         config = AppConfig(
             seed=_require_int(raw["seed"], field_name="seed"),
-            embedding_backend=_require_str(
-                raw.get("embedding_backend", "open_clip"),
-                field_name="embedding_backend",
-            ),
+            embedding_backend=embedding_backend,
             model_name=_require_str(raw["model_name"], field_name="model_name"),
             pretrained_tag=_require_str(
-                raw.get("pretrained_tag", "laion2b_s34b_b79k"),
+                raw.get("pretrained_tag", default_pretrained_tag),
                 field_name="pretrained_tag",
             ),
             embedding_dim=_require_int(raw["embedding_dim"], field_name="embedding_dim"),
@@ -162,6 +169,22 @@ def load_config(path: Path) -> AppConfig:
                 scaling_mod_size=_require_int(
                     ckks_raw.get("scaling_mod_size", 40), field_name="ckks.scaling_mod_size"
                 ),
+            ),
+            video=VideoConfig(
+                backend=_require_str(
+                    video_raw.get("backend", "videomae_action"),
+                    field_name="video.backend",
+                ),
+                model_name=_require_str(
+                    video_raw.get("model_name", "nateraw/videomae-base-finetuned-ucf101"),
+                    field_name="video.model_name",
+                ),
+                clip_len=_require_int(video_raw.get("clip_len", 16), field_name="video.clip_len"),
+                frame_sample_rate=_require_int(
+                    video_raw.get("frame_sample_rate", 4),
+                    field_name="video.frame_sample_rate",
+                ),
+                top_k=_require_int(video_raw.get("top_k", 5), field_name="video.top_k"),
             ),
             text_unicode_form=_require_str(
                 text_raw.get("unicode_form", "NFC"), field_name="text_normalization.unicode_form"
